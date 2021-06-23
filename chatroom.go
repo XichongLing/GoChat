@@ -3,10 +3,16 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"net"
+	"strings"
 )
+
+var account = make(map[string]net.Conn)
+var mesBase = make(chan string,1000)
+var sentinal []byte= []byte("EXIT")
 
 //CheckError to check if errors occur
 
@@ -17,8 +23,13 @@ func CheckError(err error){
 }
 
 
-//handleConnection recieves a connection and reads the information it carries
+//Record keep a record of the login info
+func Record(conn net.Conn){
+	account[conn.RemoteAddr().String()] = conn
+}
 
+
+//handleConnection receives a connection and reads the information it carries
 func handleConnection(conn net.Conn){
 
 	text := make([] byte, 1024)
@@ -26,17 +37,42 @@ func handleConnection(conn net.Conn){
 	defer conn.Close()
 
 	for {
-		_, err := conn.Read(text)
+		size, err := conn.Read(text)
 
 		if err == io.EOF {
 			continue
 		}
+
+		//handle the termination situation
+
+		if bytes.Compare(bytes.ToUpper(text), sentinal) == 0 {
+			panic("log out")
+		}
+
 		CheckError(err)
-		fmt.Println(string(text))
+		mesBase <- string(text[0:size])
+
 	}
 
 }
 
+//DistributeMes if there is an untouched message, distribute it to the intended user.
+func DistributeMes(){
+	for {
+		select {
+		case text := <-mesBase:
+			contents := strings.Split(text, ">")
+			uid := contents[0]
+			message := contents[1]
+			fmt.Println(account)
+			if user, ok := account[uid]; ok {
+				_, err := user.Write([]byte(message))
+
+				CheckError(err)
+			}
+		}
+	}
+}
 
 func main(){
 
@@ -46,11 +82,15 @@ func main(){
 	CheckError(err)
 	defer listen_socket.Close()
 
+
+	go DistributeMes()
+
 	//once receiving, start a goroutine to process the information
 
 	for{
 		conn, err := listen_socket.Accept()
 		CheckError(err)
+		Record(conn)
 		go handleConnection(conn)
 	}
 }
