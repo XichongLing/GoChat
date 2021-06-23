@@ -35,17 +35,19 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	defer conn.Close()
 
 	go sendMes(conn)
+
 	buffer := make([]byte,1024)
 	for {
 		_, err_3 := conn.Read(buffer)
 		if err_3 != nil {
 			conn.Close()
+			break
 		}
 		fmt.Println(string(buffer))
 	}
-
 }
 
