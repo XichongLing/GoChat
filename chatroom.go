@@ -60,16 +60,26 @@ func handleConnection(conn net.Conn){
 func DistributeMes(){
 	for {
 		select {
-		case text := <-mesBase:
-			contents := strings.Split(text, ">")
-			uid := contents[0]
-			message := contents[1]
-			fmt.Println(account)
-			if user, ok := account[uid]; ok {
-				_, err := user.Write([]byte(message))
+			case text := <-mesBase:
+				num := strings.Count(text, ">")
+				if num == 0 {
+					for _,con := range account{
+						fmt.Println(account)
+						_,err := con.Write([]byte(text))
+						CheckError(err)
+					}
 
-				CheckError(err)
-			}
+				}else{
+					fmt.Println(account)
+					contents := strings.SplitN(text, ">",2)
+					uid := contents[0]
+					message := contents[1]
+					if user, ok := account[uid]; ok {
+						_, err := user.Write([]byte(message))
+
+						CheckError(err)
+					}
+				}
 		}
 	}
 }
