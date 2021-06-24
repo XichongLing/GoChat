@@ -3,24 +3,20 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"io"
 	"net"
+	"regexp"
 	"strings"
 )
 
+const (
+	thousand = 1000
+	lostRemoteError = ".wsarecv: An existing connection was forcibly closed by the remote host"
+)
+
 var account = make(map[string]net.Conn)
-var mesBase = make(chan string,1000)
-var sentinal []byte= []byte("EXIT")
-
-//CheckError to check if errors occur
-
-func CheckError(err error){
-	if err != nil {
-		panic(err)
-	}
-}
+var mesBase = make(chan string,thousand)
 
 
 //Record keep a record of the login info
@@ -30,30 +26,44 @@ func Record(conn net.Conn){
 
 
 //handleConnection receives a connection and reads the information it carries
-func handleConnection(conn net.Conn){
+func handleConnection(conn net.Conn) {
 
-	text := make([] byte, 1024)
+	text := make([] byte, thousand)
 
 	defer conn.Close()
 
 	for {
 		size, err := conn.Read(text)
 
-		if err == io.EOF {
+		if err == nil {
+			mesBase <- string(text[0:size])
+		}else if err == io.EOF {
 			continue
+		}else if lostRemote,_ := regexp.MatchString(lostRemoteError,err.Error());lostRemote {
+			uid := conn.RemoteAddr().String()
+			fmt.Printf("Remote user %s forcibly closed the connection\n",uid)
+			return
+		}else {
+			panic(err)
 		}
 
-		//handle the termination situation
 
-		if bytes.Compare(bytes.ToUpper(text), sentinal) == 0 {
-			panic("log out")
-		}
-
-		CheckError(err)
-		mesBase <- string(text[0:size])
 
 	}
 
+}
+
+//MassMessage send message to all the user in the queue
+func MassMessage(text string) error{
+	for _,con := range account {
+
+		_, err := con.Write([]byte(text))
+
+		if err != nil {
+			 return fmt.Errorf("MassMessage Failure, at user %s.\n",con.RemoteAddr().String())
+		}
+	}
+	return nil
 }
 
 //DistributeMes if there is an untouched message, distribute it to the intended user.
@@ -62,22 +72,24 @@ func DistributeMes(){
 		select {
 			case text := <-mesBase:
 				num := strings.Count(text, ">")
+
 				if num == 0 {
-					for _,con := range account{
-						fmt.Println(account)
-						_,err := con.Write([]byte(text))
-						CheckError(err)
+					err := MassMessage(text)
+					if err != nil {
+						fmt.Println(err)
 					}
 
 				}else{
-					fmt.Println(account)
 					contents := strings.SplitN(text, ">",2)
 					uid := contents[0]
 					message := contents[1]
 					if user, ok := account[uid]; ok {
 						_, err := user.Write([]byte(message))
 
-						CheckError(err)
+						if err != nil {
+							fmt.Errorf("Failure to write to user %s.\n",uid)
+						}
+
 					}
 				}
 		}
@@ -89,17 +101,22 @@ func main(){
 	// deploy a socket which listens to clients' requests
 
 	listen_socket, err := net.Listen("tcp","127.0.0.1:8080")
-	CheckError(err)
-	defer listen_socket.Close()
 
+	if err != nil{
+		fmt.Errorf("connection failure")
+	}
+
+	defer listen_socket.Close()
 
 	go DistributeMes()
 
 	//once receiving, start a goroutine to process the information
-
 	for{
 		conn, err := listen_socket.Accept()
-		CheckError(err)
+		if err != nil{
+			fmt.Errorf(err.Error())
+		}
+
 		Record(conn)
 		go handleConnection(conn)
 	}
