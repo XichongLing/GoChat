@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="95ed1099-9ce9-42d0-97b0-3ef610071148" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Go File" />
+      </list>
+    </option>
+  </component>
+  <component name="GOROOT" path="$PROJECT_DIR$/../../../../../Program Files/Go" />
+  <component name="ProjectId" id="1uFbfAmzXSnW9ivqycSUuY7Ki3P" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="DefaultGoTemplateProperty" value="Go File" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="configurable.Global.GOPATH.is.expanded" value="true" />
+    <property name="configurable.Module.GOPATH.is.expanded" value="false" />
+    <property name="configurable.Project.GOPATH.is.expanded" value="true" />
+    <property name="go.import.settings.migrated" value="true" />
+    <property name="last_opened_file_path" value="$USER_HOME$" />
+    <property name="settings.editor.selected.configurable" value="preferences.pathVariables" />
+  </component>
+  <component name="RunManager">
+    <configuration name="go build chatroom" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="chatroom" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="FILE" />
+      <filePath value="$PROJECT_DIR$/chatroom.go" />
+      <package value="C:\Users\v_xichling\go\src\chatroom" />
+      <directory value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Build.go build chatroom" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VgoProject">
+    <integration-enabled>true</integration-enabled>
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="716" y="415" key="FileChooserDialogImpl" timestamp="1624331096920">
+      <screen x="0" y="0" width="1920" height="1160" />
+    </state>
+    <state x="716" y="415" key="FileChooserDialogImpl/0.0.1920.1160@0.0.1920.1160" timestamp="1624331096920" />
+    <state width="1877" height="271" key="GridCell.Tab.0.bottom" timestamp="1624501192124">
+      <screen x="0" y="0" width="1920" height="1160" />
+    </state>
+    <state width="1877" height="271" key="GridCell.Tab.0.bottom/0.0.1920.1160@0.0.1920.1160" timestamp="1624501192124" />
+    <state width="1877" height="271" key="GridCell.Tab.0.center" timestamp="1624501192124">
+      <screen x="0" y="0" width="1920" height="1160" />
+    </state>
+    <state width="1877" height="271" key="GridCell.Tab.0.center/0.0.1920.1160@0.0.1920.1160" timestamp="1624501192124" />
+    <state width="1877" height="271" key="GridCell.Tab.0.left" timestamp="1624501192124">
+      <screen x="0" y="0" width="1920" height="1160" />
+    </state>
+    <state width="1877" height="271" key="GridCell.Tab.0.left/0.0.1920.1160@0.0.1920.1160" timestamp="1624501192124" />
+    <state width="1877" height="271" key="GridCell.Tab.0.right" timestamp="1624501192124">
+      <screen x="0" y="0" width="1920" height="1160" />
+    </state>
+    <state width="1877" height="271" key="GridCell.Tab.0.right/0.0.1920.1160@0.0.1920.1160" timestamp="1624501192124" />
+    <state x="643" y="103" key="SettingsEditor" timestamp="1624331131187">
+      <screen x="0" y="0" width="1920" height="1160" />
+    </state>
+    <state x="643" y="103" key="SettingsEditor/0.0.1920.1160@0.0.1920.1160" timestamp="1624331131187" />
+    <state x="638" y="215" width="596" height="891" key="find.popup" timestamp="1624327308597">
+      <screen x="0" y="0" width="1920" height="1160" />
+    </state>
+    <state x="638" y="215" width="596" height="891" key="find.popup/0.0.1920.1160@0.0.1920.1160" timestamp="1624327308597" />
+  </component>
+</project>
