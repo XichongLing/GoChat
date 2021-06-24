@@ -25,6 +25,7 @@ func Record(conn net.Conn){
 }
 
 
+
 //handleConnection receives a connection and reads the information it carries
 func handleConnection(conn net.Conn) {
 
@@ -42,6 +43,7 @@ func handleConnection(conn net.Conn) {
 		}else if lostRemote,_ := regexp.MatchString(lostRemoteError,err.Error());lostRemote {
 			uid := conn.RemoteAddr().String()
 			fmt.Printf("Remote user %s forcibly closed the connection\n",uid)
+			delete(account,uid)
 			return
 		}else {
 			panic(err)
