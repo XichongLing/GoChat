@@ -69,31 +69,53 @@ func MassMessage(text string) error{
 	return nil
 }
 
+//account2str return a string form of account
+func account2str() string {
+	var uList string
+	for id,_ := range account {
+		entry := id + " "
+		uList += entry
+	}
+	return uList
+}
+
+
 //DistributeMes if there is an untouched message, distribute it to the intended user.
 func DistributeMes(){
 	for {
 		select {
 			case info := <-mesBase:
 				num := strings.Count(info[1], ">")
-				if num == 0 {
-					err := MassMessage(info[1])
-					fmt.Println(info[1])
-					if err != nil {
-						fmt.Println(err)
-					}
-
-				} else {
-					contents := strings.SplitN(info[1], ">", 2)
-					uid := contents[0]
-					message := contents[1]
-					if user, ok := account[uid]; ok {
-						_, err := user.Write([]byte(message))
-
+				if addresser, ok := account[info[0]]; ok {
+					text := info[1]
+					if strings.ToUpper(text) == list {
+						_, err := addresser.Write([]byte(account2str()))
 						if err != nil {
-							fmt.Errorf("Failure to write to user %s.\n", uid)
+							fmt.Errorf("unable to write to user %s\n", info[0])
 						}
+					} else {
+						if num == 0 {
+							err := MassMessage(text)
+							if err != nil {
+								fmt.Println(err)
+							}
 
+						} else {
+							contents := strings.SplitN(text, ">", 2)
+							uid := contents[0]
+							message := contents[1]
+							if user, ok := account[uid]; ok {
+								_, err := user.Write([]byte(message))
+
+								if err != nil {
+									fmt.Errorf("Failure to write to user %s.\n", uid)
+								}
+
+							}
+						}
 					}
+				}else{
+					fmt.Printf("user %s is no longer in connection.\n",info[0])
 				}
 		}
 	}
