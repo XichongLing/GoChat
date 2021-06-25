@@ -49,9 +49,6 @@ func handleConnection(conn net.Conn) {
 		}else {
 			panic(err)
 		}
-
-
-
 	}
 
 }
@@ -70,9 +67,13 @@ func MassMessage(text string) error{
 }
 
 //account2str return a string form of account
-func account2str() string {
+func account2str(conn net.Conn) string {
 	var uList string
+	uid := conn.RemoteAddr().String()
 	for id,_ := range account {
+		if strings.Compare(id,uid) == 0 {
+			id += "(me)"
+		}
 		entry := id + " "
 		uList += entry
 	}
@@ -89,7 +90,7 @@ func DistributeMes(){
 				if addresser, ok := account[info[0]]; ok {
 					text := info[1]
 					if strings.ToUpper(text) == list {
-						_, err := addresser.Write([]byte(account2str()))
+						_, err := addresser.Write([]byte(account2str(addresser)))
 						if err != nil {
 							fmt.Errorf("unable to write to user %s\n", info[0])
 						}
