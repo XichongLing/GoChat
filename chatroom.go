@@ -13,10 +13,11 @@ import (
 const (
 	thousand = 1000
 	lostRemoteError = ".wsarecv: An existing connection was forcibly closed by the remote host"
+	list = "LS"
 )
 
 var account = make(map[string]net.Conn)
-var mesBase = make(chan string,thousand)
+var mesBase = make(chan [2]string,thousand)
 
 
 //Record keep a record of the login info
@@ -35,13 +36,14 @@ func handleConnection(conn net.Conn) {
 
 	for {
 		size, err := conn.Read(text)
-
+		uid := conn.RemoteAddr().String()
 		if err == nil {
-			mesBase <- string(text[0:size])
+			var info [2] string = [2] string {uid,string(text[0:size])}
+			mesBase <- info
 		}else if err == io.EOF {
 			continue
 		}else if lostRemote,_ := regexp.MatchString(lostRemoteError,err.Error());lostRemote {
-			uid := conn.RemoteAddr().String()
+
 			fmt.Printf("Remote user %s forcibly closed the connection\n",uid)
 			delete(account,uid)
 			return
@@ -72,24 +74,23 @@ func MassMessage(text string) error{
 func DistributeMes(){
 	for {
 		select {
-			case text := <-mesBase:
-				num := strings.Count(text, ">")
-
+			case info := <-mesBase:
+				num := strings.Count(info[1], ">")
 				if num == 0 {
-					err := MassMessage(text)
+					err := MassMessage(info[1])
 					if err != nil {
 						fmt.Println(err)
 					}
 
-				}else{
-					contents := strings.SplitN(text, ">",2)
+				} else {
+					contents := strings.SplitN(info[1], ">", 2)
 					uid := contents[0]
 					message := contents[1]
 					if user, ok := account[uid]; ok {
 						_, err := user.Write([]byte(message))
 
 						if err != nil {
-							fmt.Errorf("Failure to write to user %s.\n",uid)
+							fmt.Errorf("Failure to write to user %s.\n", uid)
 						}
 
 					}
