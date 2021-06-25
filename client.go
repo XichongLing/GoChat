@@ -40,11 +40,13 @@ func main() {
 
 	go sendMes(conn)
 
-	buffer := make([]byte,1024)
+
 	for {
+		buffer := make([]byte,1024)
 		_, err_3 := conn.Read(buffer)
 		if err_3 != nil {
 			conn.Close()
+			fmt.Println("Error with connection")
 			break
 		}
 		fmt.Println(string(buffer))
