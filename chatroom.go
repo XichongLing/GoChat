@@ -43,7 +43,6 @@ func handleConnection(conn net.Conn) {
 		}else if err == io.EOF {
 			continue
 		}else if lostRemote,_ := regexp.MatchString(lostRemoteError,err.Error());lostRemote {
-
 			fmt.Printf("Remote user %s forcibly closed the connection\n",uid)
 			delete(account,uid)
 			return
@@ -78,6 +77,7 @@ func DistributeMes(){
 				num := strings.Count(info[1], ">")
 				if num == 0 {
 					err := MassMessage(info[1])
+					fmt.Println(info[1])
 					if err != nil {
 						fmt.Println(err)
 					}
