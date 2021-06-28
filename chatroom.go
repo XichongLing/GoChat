@@ -16,29 +16,40 @@ const (
 	list = "LS"
 )
 
+
 var account = make(map[string]net.Conn)
 var mesBase = make(chan [2]string,thousand)
 
 
 //Record keep a record of the login info
-func Record(conn net.Conn){
-	account[conn.RemoteAddr().String()] = conn
+func Record(conn net.Conn,id string){
+	account[id] = conn
 }
 
 
 
 //handleConnection receives a connection and reads the information it carries
 func handleConnection(conn net.Conn) {
-
 	text := make([] byte, thousand)
 
 	defer conn.Close()
+
+	size1, err := conn.Read(text)
+	name := string(text[0:size1])
+
+	if err != nil {
+		fmt.Printf("Failure to read from connection %s.\n",conn.RemoteAddr().String())
+	}else{
+		Record(conn,name)
+	}
+
+	conn.Write([]byte("start chatting"))
 
 	for {
 		size, err := conn.Read(text)
 		uid := conn.RemoteAddr().String()
 		if err == nil {
-			var info [2] string = [2] string {uid,string(text[0:size])}
+			var info = [2] string {name,string(text[0:size])}
 			mesBase <- info
 		}else if err == io.EOF {
 			continue
@@ -56,11 +67,10 @@ func handleConnection(conn net.Conn) {
 //MassMessage send message to all the user in the queue
 func MassMessage(text string) error{
 	for _,con := range account {
-
 		_, err := con.Write([]byte(text))
 
 		if err != nil {
-			 return fmt.Errorf("MassMessage Failure, at user %s.\n",con.RemoteAddr().String())
+			 return fmt.Errorf("MassMessage Failure, at user %s. err:%s \n",con.RemoteAddr().String(), err.Error())
 		}
 	}
 	return nil
@@ -69,9 +79,8 @@ func MassMessage(text string) error{
 //account2str return a string form of account
 func account2str(conn net.Conn) string {
 	var uList string
-	uid := conn.RemoteAddr().String()
-	for id,_ := range account {
-		if strings.Compare(id,uid) == 0 {
+	for id,con := range account {
+		if strings.Compare(con.RemoteAddr().String(),conn.RemoteAddr().String()) == 0 {
 			id += "(me)"
 		}
 		entry := id + " "
@@ -87,6 +96,7 @@ func DistributeMes(){
 		select {
 			case info := <-mesBase:
 				num := strings.Count(info[1], ">")
+
 				if addresser, ok := account[info[0]]; ok {
 					text := info[1]
 					if strings.ToUpper(text) == list {
@@ -105,8 +115,8 @@ func DistributeMes(){
 							contents := strings.SplitN(text, ">", 2)
 							uid := contents[0]
 							message := contents[1]
-							if user, ok := account[uid]; ok {
-								_, err := user.Write([]byte(message))
+							if addressee, ok := account[uid]; ok {
+								_, err := addressee.Write([]byte(message))
 
 								if err != nil {
 									fmt.Errorf("Failure to write to user %s.\n", uid)
@@ -122,6 +132,7 @@ func DistributeMes(){
 	}
 }
 
+
 func main(){
 
 	// deploy a socket which listens to clients' requests
@@ -129,7 +140,7 @@ func main(){
 	listen_socket, err := net.Listen("tcp","127.0.0.1:8080")
 
 	if err != nil{
-		fmt.Errorf("connection failure")
+		panic("connection failure")
 	}
 
 	defer listen_socket.Close()
@@ -143,7 +154,8 @@ func main(){
 			fmt.Errorf(err.Error())
 		}
 
-		Record(conn)
+		conn.Write([]byte("Choose a login ID"))
+
 		go handleConnection(conn)
 	}
 }
