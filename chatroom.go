@@ -99,30 +99,31 @@ func DistributeMes(){
 
 				if addresser, ok := account[info[0]]; ok {
 					text := info[1]
-					if strings.ToUpper(text) == list {
-						_, err := addresser.Write([]byte(account2str(addresser)))
-						if err != nil {
-							fmt.Errorf("unable to write to user %s\n", info[0])
-						}
-					} else {
-						if num == 0 {
+
+					if num == 0 {
+						if strings.ToUpper(text) == list {
+							_, err := addresser.Write([]byte(account2str(addresser)))
+							if err != nil {
+								fmt.Errorf("unable to write to user %s\n", info[0])
+							}
+						} else {
 							err := MassMessage(text)
 							if err != nil {
 								fmt.Println(err)
 							}
+						}
 
-						} else {
-							contents := strings.SplitN(text, ">", 2)
-							uid := contents[0]
-							message := contents[1]
-							if addressee, ok := account[uid]; ok {
-								_, err := addressee.Write([]byte(message))
+					} else {
+						contents := strings.SplitN(text, ">", 2)
+						uid := contents[0]
+						message := contents[1]
+						if addressee, ok := account[uid]; ok {
+							_, err := addressee.Write([]byte(message))
 
-								if err != nil {
-									fmt.Errorf("Failure to write to user %s.\n", uid)
-								}
-
+							if err != nil {
+								fmt.Errorf("Failure to write to user %s.\n", uid)
 							}
+
 						}
 					}
 				}else{
@@ -137,19 +138,19 @@ func main(){
 
 	// deploy a socket which listens to clients' requests
 
-	listen_socket, err := net.Listen("tcp","127.0.0.1:8080")
+	listenSocket, err := net.Listen("tcp","127.0.0.1:8080")
 
 	if err != nil{
 		panic("connection failure")
 	}
 
-	defer listen_socket.Close()
+	defer listenSocket.Close()
 
 	go DistributeMes()
 
 	//once receiving, start a goroutine to process the information
 	for{
-		conn, err := listen_socket.Accept()
+		conn, err := listenSocket.Accept()
 		if err != nil{
 			fmt.Errorf(err.Error())
 		}
