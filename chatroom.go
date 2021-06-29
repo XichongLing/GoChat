@@ -55,7 +55,7 @@ func handleConnection(conn net.Conn) {
 			continue
 		}else if lostRemote,_ := regexp.MatchString(lostRemoteError,err.Error());lostRemote {
 			fmt.Printf("Remote user %s forcibly closed the connection\n",uid)
-			delete(account,uid)
+			delete(account,name)
 			return
 		}else {
 			panic(err)
