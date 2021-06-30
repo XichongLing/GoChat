@@ -65,8 +65,9 @@ func handleConnection(conn net.Conn) {
 }
 
 //MassMessage send message to all the user in the queue
-func MassMessage(text string) error{
+func MassMessage(text string,addresser string) error{
 	for _,con := range account {
+		text = addresser + ": " + text
 		_, err := con.Write([]byte(text))
 
 		if err != nil {
@@ -107,7 +108,7 @@ func DistributeMes(){
 								fmt.Errorf("unable to write to user %s\n", info[0])
 							}
 						} else {
-							err := MassMessage(text)
+							err := MassMessage(text,info[0])
 							if err != nil {
 								fmt.Println(err)
 							}
@@ -116,7 +117,7 @@ func DistributeMes(){
 					} else {
 						contents := strings.SplitN(text, ">", 2)
 						uid := contents[0]
-						message := contents[1]
+						message := info[0] + ": " + contents[1]
 						if addressee, ok := account[uid]; ok {
 							_, err := addressee.Write([]byte(message))
 
